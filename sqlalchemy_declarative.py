@@ -78,4 +78,4 @@ class Leave(Base):
     
     def __repr__(self):
         return "<Leave(FromDate='%s', ToDate='%s', Status='%s', Employee ='%s')>" % (
-            self.fromdate, self.todate, self.emailaddress, self.employee)
+            self.fromdate, self.todate, self.status, self.employee)
