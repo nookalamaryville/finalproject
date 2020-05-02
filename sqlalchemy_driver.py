@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
- 
-from sqlalchemy_declarative import Employee, Base, Role
+from datetime import datetime
+from sqlalchemy_declarative import Employee, Base, Role, Department, LeaveType, Leave
  
 
 # Create an engine that stores data in the local directory's
@@ -35,8 +35,8 @@ session.add_all([
 session.commit()
 
 # Insert a Department in the departments table
-new_departments = Department(departmenttitle='IT', departmentdescription = 'IT')
-session.add(new_leavetype)
+new_department = Department(departmenttitle='IT', departmentdescription = 'IT')
+session.add(new_department)
 session.commit()
 
 # Insert a LeaveType in the LeaveTypes table
@@ -44,17 +44,14 @@ new_leavetype = LeaveType(leavetypetitle='Casual', leavetypedescription = 'Casua
 session.add(new_leavetype)
 session.commit()
  
-# Insert a manager in the Employees table
+# Insert a records in the Employees table
 manager = session.query(Role).filter(Role.roletitle == 'Manager').first()
-new_employee = Employee(firstname='Ryan', lastname='Gordy', mobilenumber='(916) 111-1111', address='', emailaddress='Ryan.Gordy@live.maryville.edu', password='manager', role=manager, department=new_deaprtment)
-session.add(new_employee)
-session.commit()
-
-
-# Insert an Employee in the Employees table
 developer = session.query(Role).filter(Role.roletitle == 'Developer').first()
-new_employee = Employee(firstname='Malli', lastname='Nookala', mobilenumber='(916) 222-2222', address='', emailaddress='mnookala1@live.maryville.edu', password='123456', role=developer, department=new_deaprtment)
-session.add(new_employee)
+
+session.add_all([
+   Employee(firstname='Ryan', lastname='Gordy', mobilenumber='(916) 111-1111', address='', emailaddress='Ryan.Gordy@live.maryville.edu', password='manager', role=manager, department=new_department),
+   Employee(firstname='Malli', lastname='Nookala', mobilenumber='(916) 222-2222', address='', emailaddress='mnookala1@live.maryville.edu', password='123456', role=developer, department=new_department)]
+)
 session.commit()
 
 
@@ -62,11 +59,25 @@ for employee in session.query(Employee).all():
     print(employee)
     
 # Insert a leave in the Leaves table
-manager = session.query(Employee).filter(Employee.FirstName == 'Ryan').first()
-new_leave = Leave(employee=new_employee, manager=manager, leavetype=new_leavetype, fromdate='2020-05-02', todate='2020-05-08', employeenotes='Need a week leave for vacation', managernotes='', status='Pending')
+manager = session.query(Employee).filter(Employee.firstname == 'Ryan').first()
+employee = session.query(Employee).filter(Employee.firstname == 'Malli').first()
+new_leave = Leave(employee=employee, manager=manager, leavetype=new_leavetype, fromdate= datetime(2012, 5, 2, 0, 0, 0), todate=datetime(2012, 3, 13, 0, 0, 0), employeenotes='Need a week leave for vacation', managernotes='', status='Pending')
 session.add(new_leave)
+session.commit()
+
+new_leave.status = 'Rejected'
+new_leave.managernotes = 'I can''t give 12 days leave.'
+session.commit()
+
+new_leave = Leave(employee=employee, manager=manager, leavetype=new_leavetype, fromdate= datetime(2020, 5, 2, 0, 0, 0), todate=datetime(2020, 5, 8, 0, 0, 0), employeenotes='Need a week leave for vacation', managernotes='', status='Pending')
+session.add(new_leave)
+session.commit()
+
+new_leave.status = 'Approved'
+new_leave.managernotes = 'Enjoy the vacation.'
 session.commit()
 
 for leave in session.query(Leave).all():
     print(leave)
+
 
